@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 23% 7%;
+    --foreground: 215 20% 93%;
+    --card: 220 20% 11%;
+    --card-foreground: 215 20% 93%;
+    --popover: 220 20% 11%;
+    --popover-foreground: 215 20% 93%;
+    --primary: 142 76% 50%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 220 16% 16%;
+    --secondary-foreground: 215 20% 80%;
+    --muted: 220 16% 16%;
+    --muted-foreground: 215 14% 68%;
+    --accent: 142 76% 50%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 84% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 16% 20%;
+    --input: 220 16% 20%;
+    --ring: 142 76% 50%;
+    --radius: 0.75rem;
+    --go: 142 76% 50%;
+    --caution: 43 100% 55%;
+    --stop: 0 90% 58%;
+    --sky: 205 90% 60%;
+    --surface-0: 220 23% 7%;
+    --surface-1: 220 20% 11%;
+    --surface-2: 220 18% 15%;
+    --surface-3: 220 16% 20%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html {
+    scroll-behavior: smooth;
+    background-color: hsl(220 23% 7%);
+    font-size: 16px;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+    color: hsl(215 20% 93%);
+  }
+  .font-mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  * { min-height: unset; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(220 16% 28%); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(220 16% 38%); }
+
+/* Neon glows */
+@layer utilities {
+  .glow-go { box-shadow: 0 0 24px hsl(var(--go) / 0.35), 0 0 60px hsl(var(--go) / 0.12); }
+  .glow-caution { box-shadow: 0 0 24px hsl(var(--caution) / 0.35), 0 0 60px hsl(var(--caution) / 0.12); }
+  .glow-stop { box-shadow: 0 0 24px hsl(var(--stop) / 0.35), 0 0 60px hsl(var(--stop) / 0.12); }
+  .text-glow-go { text-shadow: 0 0 24px hsl(var(--go) / 0.6); }
+  .text-glow-caution { text-shadow: 0 0 24px hsl(var(--caution) / 0.6); }
+  .text-glow-stop { text-shadow: 0 0 24px hsl(var(--stop) / 0.6); }
+  .glass { backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+}
+
+/* Animated Weather Icons */
+@keyframes sun-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.08) rotate(15deg); opacity: 0.9; }
+}
+@keyframes cloud-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+@keyframes rain-fall {
+  0% { transform: translateY(-4px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(4px); opacity: 0; }
+}
+@keyframes lightning-flash {
+  0%, 90%, 100% { opacity: 1; }
+  92%, 98% { opacity: 0.2; }
+  94%, 96% { opacity: 1; }
+}
+@keyframes snow-fall {
+  0% { transform: translateY(-3px) rotate(0deg); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(3px) rotate(180deg); opacity: 0; }
+}
+@keyframes wind-blow {
+  0%, 100% { transform: scaleX(1); opacity: 0.8; }
+  50% { transform: scaleX(1.1); opacity: 1; }
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+@keyframes rank-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fall {
+  0% { transform: translateY(-6px); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(6px); opacity: 0; }
+}
+
+.anim-sun { animation: sun-pulse 3s ease-in-out infinite; display: inline-block; }
+.anim-cloud { animation: cloud-drift 4s ease-in-out infinite; display: inline-block; }
+.anim-rain { animation: rain-fall 1.2s ease-in-out infinite; display: inline-block; }
+.anim-lightning { animation: lightning-flash 2.5s ease-in-out infinite; display: inline-block; }
+.anim-snow { animation: snow-fall 2s ease-in-out infinite; display: inline-block; }
+.anim-wind { animation: wind-blow 1.8s ease-in-out infinite; display: inline-block; }
+.live-dot { animation: live-pulse 2s ease-in-out infinite; }
+.rank-in { animation: rank-in 0.28s ease-out both; }
+.fade-up { animation: fade-up 0.35s ease-out both; }
+
+.text-white { color: hsl(0 0% 98%) !important; }
+table { border-collapse: collapse; }
+th { font-weight: 600; }
+td, th { vertical-align: middle; }
+
+button, a { -webkit-tap-highlight-color: transparent; }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0); }
