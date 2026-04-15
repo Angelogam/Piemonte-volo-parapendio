@@ -1,3 +1,4 @@
+// AnimatedWeatherIcon - light theme compatible
 interface Props {
   code: number;
   hour?: number;
