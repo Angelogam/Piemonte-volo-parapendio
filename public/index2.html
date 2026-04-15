@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteo Volo Piemonte - Parapendio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0f1a 0%, #0d1220 100%);
+            color: #eef2ff;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #fff, #4ade80);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(74, 222, 128, 0.15);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        /* Stats cards */
+        .stats {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            padding: 15px 30px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-card.go { background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); }
+        .stat-card.caution { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.4); }
+        .stat-card.stop { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .stat-card.go .stat-number { color: #4ade80; }
+        .stat-card.caution .stat-number { color: #fbbf24; }
+        .stat-card.stop .stat-number { color: #ef4444; }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Grid siti */
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .site-card {
+            background: rgba(20, 25, 40, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .site-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(74, 222, 128, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .site-card.selected {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.05);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .site-icon {
+            font-size: 3rem;
+        }
+
+        .site-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .volability {
+            text-align: right;
+        }
+
+        .volability-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .volability-label {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .label-go { background: #4ade80; color: #000; }
+        .label-caution { background: #fbbf24; color: #000; }
+        .label-stop { background: #ef4444; color: #fff; }
+
+        .site-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #9ca3af;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .exposure-sud { color: #fbbf24; font-weight: bold; }
+        .exposure-nord { color: #60a5fa; font-weight: bold; }
+        .exposure-est { color: #a3e635; font-weight: bold; }
+        .exposure-ovest { color: #c084fc; font-weight: bold; }
+
+        .progress-bar {
+            margin-top: 12px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .fill-go { background: #4ade80; }
+        .fill-caution { background: #fbbf24; }
+        .fill-stop { background: #ef4444; }
+
+        /* Main section */
+        .main-content {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(20, 25, 40, 0.6);
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .selected-site-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .weather-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .weather-card {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 18px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .weather-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* Footer links */
+        .links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 40px;
+            text-decoration: none;
+            color: #eef2ff;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .link-btn:hover {
+            background: rgba(74, 222, 128, 0.15);
+            border-color: #4ade80;
+        }
+
+        @media (max-width: 700px) {
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪂 Meteo Volo Piemonte</h1>
+            <div class="badge">
+                <span class="live-dot"></span>
+                <span>24 Siti · Dati in tempo reale</span>
+            </div>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card go">
+                <div class="stat-number" id="goCount">0</div>
+                <div class="stat-label">🪂 VOLA</div>
+            </div>
+            <div class="stat-card caution">
+                <div class="stat-number" id="cautionCount">0</div>
+                <div class="stat-label">⚠️ VALUTA</div>
+            </div>
+            <div class="stat-card stop">
+                <div class="stat-number" id="stopCount">0</div>
+                <div class="stat-label">🚫 STOP</div>
+            </div>
+        </div>
+
+        <div class="sites-grid" id="sitesGrid"></div>
+
+        <div class="main-content" id="mainContent">
+            <div class="selected-site-title">
+                <span id="selectedIcon">🏔️</span>
+                <span id="selectedName">Seleziona un decollo</span>
+            </div>
+            <div id="weatherDetail">
+                <p style="text-align: center; opacity: 0.6;">Clicca su un decollo per vedere i dettagli meteo</p>
+            </div>
+        </div>
+
+        <div class="links">
+            <a href="https://www.windy.com" target="_blank" class="link-btn">🌬️ Windy</a>
+            <a href="https://www.xcontest.org" target="_blank" class="link-btn">🏆 XContest</a>
+            <a href="https://thermal.kk7.ch" target="_blank" class="link-btn">🔥 Thermal.kk7</a>
+        </div>
+    </div>
+
+    <script>
+        // DATI DEI DECOLLI - 24 siti piemontesi
+        const sites = [
+            { id: 1, name: "Malanotte", region: "CN", altitude: 1740, orientation: "N-NE", exposure: "NORD", icon: "🏔️", maxWind: 25, lat: 44.2587, lng: 7.7943 },
+            { id: 2, name: "Colle di Tenda", region: "CN", altitude: 1871, orientation: "S-SE", exposure: "SUD", icon: "⛰️", maxWind: 30, lat: 44.1509, lng: 7.5693 },
+            { id: 3, name: "Boves", region: "CN", altitude: 850, orientation: "S-SW", exposure: "SUD", icon: "🏞️", maxWind: 20, lat: 44.3211, lng: 7.5447 },
+            { id: 4, name: "Monte Male di Dronero", region: "CN", altitude: 1620, orientation: "SE", exposure: "SUD", icon: "🏔️", maxWind: 28, lat: 44.4316, lng: 7.3629 },
+            { id: 5, name: "Iretta", region: "CN", altitude: 1600, orientation: "S", exposure: "SUD", icon: "⛰️", maxWind: 25, lat: 44.4989, lng: 7.3820 },
+            { id: 6, name: "Pratoni di Val Mala", region: "CN", altitude: 1750, orientation: "SE", exposure: "SUD", icon: "🏞️", maxWind: 25, lat: 44.5078, lng: 7.3466 },
+            { id: 7, name: "Monte Birrone", region: "CN", altitude: 2100, orientation: "S", exposure: "SUD", icon: "🏔️", maxWind: 35, lat: 44.5399, lng: 7.2529 },
+            { id: 8, name: "Colle dell'Agnello", region: "CN", altitude: 2744, orientation: "S", exposure: "SUD", icon: "🏔️", maxWind: 40, lat: 44.6828, lng: 6.9782 },
+            { id: 9, name: "Pian Munè", region: "CN", altitude: 1850, orientation: "SE", exposure: "SUD", icon: "🚠", maxWind: 28, lat: 44.6386, lng: 7.2309 },
+            { id: 10, name: "Bricco Lombatera", region: "CN", altitude: 1950, orientation: "S", exposure: "SUD", icon: "⛰️", maxWind: 30, lat: 44.6574, lng: 7.2600 },
+            { id: 11, name: "Martiniana Po", region: "CN", altitude: 700, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 18, lat: 44.6070, lng: 7.3832 },
+            { id: 12, name: "Rucas Alto", region: "CN", altitude: 1950, orientation: "SE", exposure: "SUD", icon: "🏔️", maxWind: 30, lat: 44.7421, lng: 7.2201 },
+            { id: 13, name: "Montoso Basso", region: "CN", altitude: 1200, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 22, lat: 44.7644, lng: 7.2498 },
+            { id: 14, name: "Monte Vandalino", region: "TO", altitude: 1800, orientation: "S", exposure: "SUD", icon: "🏔️", maxWind: 28, lat: 44.8367, lng: 7.1739 },
+            { id: 15, name: "Pian dell'Alpe", region: "TO", altitude: 1600, orientation: "SE", exposure: "SUD", icon: "🏞️", maxWind: 25, lat: 45.0640, lng: 7.0283 },
+            { id: 16, name: "Roletto (Piggi)", region: "TO", altitude: 750, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 20, lat: 44.9325, lng: 7.3110 },
+            { id: 17, name: "Piossasco - Monte S.Giorgio", region: "TO", altitude: 850, orientation: "S", exposure: "SUD", icon: "⛰️", maxWind: 22, lat: 44.9967, lng: 7.4480 },
+            { id: 18, name: "Truccetti", region: "TO", altitude: 1400, orientation: "SE", exposure: "SUD", icon: "🏞️", maxWind: 25, lat: 45.0797, lng: 7.3420 },
+            { id: 19, name: "Val della Torre", region: "TO", altitude: 600, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 18, lat: 45.1626, lng: 7.4637 },
+            { id: 20, name: "Rocca Canavese", region: "TO", altitude: 1200, orientation: "S", exposure: "SUD", icon: "🏔️", maxWind: 25, lat: 45.3276, lng: 7.5728 },
+            { id: 21, name: "Santa Elisabetta", region: "TO", altitude: 1100, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 22, lat: 45.4183, lng: 7.6419 },
+            { id: 22, name: "Santa Elisabetta Alto", region: "TO", altitude: 1500, orientation: "SE", exposure: "SUD", icon: "🏔️", maxWind: 28, lat: 45.4402, lng: 7.6480 },
+            { id: 23, name: "Monte Cavallaria", region: "TO", altitude: 1760, orientation: "S", exposure: "SUD", icon: "🏔️", maxWind: 30, lat: 45.5173, lng: 7.7988 },
+            { id: 24, name: "Andrate", region: "TO", altitude: 850, orientation: "S", exposure: "SUD", icon: "🏞️", maxWind: 20, lat: 45.5506, lng: 7.8808 }
+        ];
+
+        // Calcola volabilità simulata (con API reale poi la sostituiamo)
+        function calculateVolability(site) {
+            let base = 5;
+            if (site.exposure === "SUD") base += 2;
+            if (site.altitude > 1500) base += 1;
+            if (site.altitude > 2000) base += 1;
+            // Valore casuale tra 3 e 9 per simulare condizioni reali
+            let random = Math.random() * 4;
+            let vol = Math.min(base + random, 9.5);
+            return parseFloat(vol.toFixed(1));
+        }
+
+        function getLabel(vol) {
+            if (vol >= 7) return { text: "GO", class: "label-go" };
+            if (vol >= 4) return { text: "CAUTION", class: "label-caution" };
+            return { text: "STOP", class: "label-stop" };
+        }
+
+        function getWind() {
+            return Math.floor(Math.random() * 25) + 5;
+        }
+
+        let selectedSite = sites[0];
+
+        function renderSites() {
+            const grid = document.getElementById('sitesGrid');
+            let goCount = 0, cautionCount = 0, stopCount = 0;
+            
+            const sitesWithData = sites.map(site => {
+                const vol = calculateVolability(site);
+                const label = getLabel(vol);
+                if (label.text === "GO") goCount++;
+                else if (label.text === "CAUTION") cautionCount++;
+                else stopCount++;
+                return { ...site, volability: vol, label: label.text, labelClass: label.class, wind: getWind() };
+            });
+
+            document.getElementById('goCount').innerText = goCount;
+            document.getElementById('cautionCount').innerText = cautionCount;
+            document.getElementById('stopCount').innerText = stopCount;
+
+            grid.innerHTML = sitesWithData.map(site => `
+                <div class="site-card ${selectedSite.id === site.id ? 'selected' : ''}" onclick="selectSite(${site.id})">
+                    <div class="site-header">
+                        <div class="site-icon">${site.icon}</div>
+                        <div class="site-name">${site.name}</div>
+                        <div class="volability">
+                            <div class="volability-value" style="color: ${site.label === 'GO' ? '#4ade80' : site.label === 'CAUTION' ? '#fbbf24' : '#ef4444'}">${site.volability}</div>
+                            <div class="volability-label ${site.labelClass}">${site.label}</div>
+                        </div>
+                    </div>
+                    <div class="site-details">
+                        <div class="detail">⛰️ ${site.altitude}m</div>
+                        <div class="detail">🧭 <span class="${site.exposure === 'SUD' ? 'exposure-sud' : 'exposure-nord'}">${site.exposure}</span></div>
+                        <div class="detail">💨 ${site.wind} km/h</div>
+                        <div class="detail">🏔️ ${site.region}</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${site.label === 'GO' ? 'fill-go' : site.label === 'CAUTION' ? 'fill-caution' : 'fill-stop'}" style="width: ${(site.volability / 10) * 100}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectSite(id) {
+            const site = sites.find(s => s.id === id);
+            if (site) {
+                selectedSite = site;
+                renderSites();
+                renderWeatherDetail(site);
+            }
+        }
+
+        function renderWeatherDetail(site) {
+            const vol = calculateVolability(site);
+            const label = getLabel(vol);
+            const wind = getWind();
+            const temp = Math.floor(Math.random() * 15) + 12;
+            
+            document.getElementById('selectedIcon').innerHTML = site.icon;
+            document.getElementById('selectedName').innerHTML = site.name;
+            
+            document.getElementById('weatherDetail').innerHTML = `
+                <div class="weather-info">
+                    <div class="weather-card">
+                        <div>🪂 Volabilità</div>
+                        <div class="weather-value" style="color: ${label.text === 'GO' ? '#4ade80' : label.text === 'CAUTION' ? '#fbbf24' : '#ef4444'}">${vol}/10</div>
+                        <div class="volability-label ${label.class}" style="display: inline-block; margin-top: 8px;">${label.text}</div>
+                    </div>
+                    <div class="weather-card">
+                        <div>💨 Vento</div>
+                        <div class="weather-value">${wind} km/h</div>
+                        <div style="font-size: 0.8rem;">${site.exposure}</div>
+                    </div>
+                    <div class="weather-card">
+                        <div>🌡️ Temperatura</div>
+                        <div class="weather-value">${temp}°C</div>
+                        <div style="font-size: 0.8rem;">al decollo</div>
+                    </div>
+                    <div class="weather-card">
+                        <div>⛰️ Quota</div>
+                        <div class="weather-value">${site.altitude}m</div>
+                        <div style="font-size: 0.8rem;">slm</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center; font-size: 0.85rem; opacity: 0.7;">
+                    🧭 Esposizione ${site.exposure} ${site.exposure === 'SUD' ? '☀️ (migliore per termiche)' : '❄️ (più fresco)'}
+                    ${site.exposure === 'SUD' ? '· Condizioni favorevoli per voli termici' : '· Attenzione a venti freddi'}
+                </div>
+            `;
+        }
+
+        renderSites();
+        renderWeatherDetail(selectedSite);
+    </script>
+</body>
+</html>
